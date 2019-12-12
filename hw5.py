@@ -52,6 +52,7 @@ def gp_predict(test_x, data_points, alpha, length_scale, sigma, beta):
         variance = rational_quadratic(x, x, alpha, length_scale, sigma) + 1/beta
         mu = np.dot(kernel.T, np.dot(np.linalg.inv(C), data_points[:, 1]))
         var = variance - np.dot(kernel.T, np.dot(np.linalg.inv(C), kernel))
+
         var = var.reshape((1))
         res = np.concatenate((mu, var), axis=0)
         prd_results.append(res)
@@ -70,18 +71,19 @@ if __name__ == "__main__":
     C = make_C(data_points, alpha, length_scale, sigma, beta)
     # print (C)
     
-    test_x = np.linspace(-60, 60, 500)
+    test_x = np.linspace(-60, 60, 1000)
     prd_results = gp_predict(test_x, data_points, alpha, length_scale, sigma, beta)
     plot_gp(data_points, test_x, prd_results, 'GP_origin')
     plt.close()
 
     theta = np.array([alpha, length_scale, sigma])
 
-    result = minimize(optimize, theta, args=(data_points, beta))
+    result = minimize(optimize, theta, args=(data_points, beta), method = 'Nelder-Mead')
     print (result)
     alpha, length_scale, sigma = result.x[0], result.x[1], result.x[2]
+    C = make_C(data_points, alpha, length_scale, sigma, beta)
 
     prd_results = gp_predict(test_x, data_points, alpha, length_scale, sigma, beta)
-    print (prd_results)
+    # print (prd_results)
     plot_gp(data_points, test_x, prd_results, 'GP_finetuned')
     plt.close()
