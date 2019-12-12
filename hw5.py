@@ -1,7 +1,7 @@
 import numpy as np
 
 from scipy.optimize import minimize
-from matplotlib import pyplot as plot
+from matplotlib import pyplot as plt
 
 def extract_gp_data():
     data = open('./input.data')
@@ -18,9 +18,11 @@ def rational_quadratic(x, y, alpha, length_scale):
     return (1 + (x - y)**2 / (2 * alpha * length_scale**2)) ** (-1 * alpha)
 
 
-def plot_gp(data_points, prd_results):
-
-
+def plot_gp(data_points, test_x, prd_results, fig_name):
+    plt.plot(data_points[:, 0], data_points[:, 1], 'ro')
+    plt.fill_between(x=test_x, y1=prd_results[:, 0] + 1.96*np.sqrt(prd_results[:, 1]), y2=prd_results[:, 0] - 1.96*np.sqrt(prd_results[:, 1]))
+    plt.plot(test_x, prd_results[:, 0], 'r--')
+    plt.savefig(f'{fig_name}.png')
     return
 
 if __name__ == "__main__":
@@ -38,9 +40,17 @@ if __name__ == "__main__":
     C = np.array(C)
     C += np.identity(len(C)) / beta
     
-    test_x = np.linspace(-60, 60, 120)
+    test_x = np.linspace(-60, 60, 240)
     prd_results = list()
     for x in test_x:
-        kernel = rational_quadratic(data_points[:, 0], x, alpha, length_scale)
+        kernel = rational_quadratic(data_points[:, 0], x, alpha, length_scale).reshape((34, 1))
         variance = rational_quadratic(x, x, alpha, length_scale) + 1/beta
-        mu = np.dot(kernel.T, np.dot(np.linalg.inv(C), data_points[:. 1]))
+        mu = np.dot(kernel.T, np.dot(np.linalg.inv(C), data_points[:, 1]))
+        var = variance - np.dot(kernel.T, np.dot(np.linalg.inv(C), kernel))
+        var = var.reshape((1))
+        res = np.concatenate((mu, var), axis=0)
+        prd_results.append(res)
+    prd_results = np.array(prd_results)
+    plot_gp(data_points, test_x, prd_results, 'GP_origin')
+
+    
