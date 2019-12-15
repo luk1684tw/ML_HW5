@@ -4,7 +4,6 @@ import numpy as np
 from scipy.optimize import minimize
 from matplotlib import pyplot as plt
 
-
 def extract_gp_data():
     data = open('./input.data')
     data_points = list()
@@ -59,7 +58,6 @@ def gp_predict(test_x, data_points, alpha, length_scale, sigma, beta):
     prd_results = np.array(prd_results)
     return prd_results
 
-
 if __name__ == "__main__":
     data_points = extract_gp_data()
 
@@ -84,6 +82,5 @@ if __name__ == "__main__":
     C = make_C(data_points, alpha, length_scale, sigma, beta)
 
     prd_results = gp_predict(test_x, data_points, alpha, length_scale, sigma, beta)
-    # print (prd_results)
     plot_gp(data_points, test_x, prd_results, 'GP_finetuned')
     plt.close()
